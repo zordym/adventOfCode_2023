@@ -1,31 +1,30 @@
-data class PossibleValue(val string: String, val digit: Int)
-
 fun main() {
-    fun firstDigit(it: String) = it.first { c -> c.isDigit() }
-
-    fun lastDigit(it: String) = it.last { c -> c.isDigit() }
 
     fun part1(input: List<String>): Int {
-        return input.sumOf { "${firstDigit(it)}${lastDigit(it)}".toInt() }
+        return input
+            .map { it.filter { c -> c.isDigit() } }
+            .sumOf { "${it.first()}${it.last()}".toInt() }
     }
 
     fun part2(input: List<String>): Int {
-        val stringPossible = listOf(
-            PossibleValue("one", 1),
-            PossibleValue("two", 2),
-            PossibleValue("three", 3),
-            PossibleValue("four", 4),
-            PossibleValue("five", 5),
-            PossibleValue("six", 6),
-            PossibleValue("seven", 7),
-            PossibleValue("eight", 8),
-            PossibleValue("nine", 9)
-        )
-        return input.sumOf {
-            val first = stringPossible.firstOrNull { p -> it.startsWith(p.string) }?.digit ?: firstDigit(it)
-            val second = stringPossible.lastOrNull { p -> it.endsWith(p.string) }?.digit ?: lastDigit(it)
-            "$first$second".toInt()
+        val words = listOf("one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+
+        fun String.fixSpelling(): String {
+            var res = ""
+            forEachIndexed { i, c ->
+                if (c.isDigit()) res += c
+
+                words.forEachIndexed { index, word ->
+                    if (length >= i + word.length) {
+                        val substring = substring(i, i + word.length)
+                        if (substring == word) res += index + 1
+                    }
+                }
+            }
+            return res
         }
+
+        return part1(input.map(String::fixSpelling))
     }
 
 
@@ -38,8 +37,9 @@ fun main() {
 
     "Test part 2".println()
     val testInput2 = readInput("Day01_part2_test")
-    check(part1(testInput2) == 281)
+    check(part2(testInput2) == 281)
 
     "Part 2".println()
-    part2(input).println()
+    val input2 = readInput("Day01_part2")
+    part2(input2).println()
 }
